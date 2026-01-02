@@ -23,7 +23,7 @@ closeIcon.addEventListener("click", () => {
 // color for icons
 const projectColors = {
     work: {
-        color: "#00663e",
+        color: "hsla(156, 100%, 20%, 1.00)",
         bg: "#d1fae5"
     },
     personal: {
