@@ -239,6 +239,7 @@
      padding: 10px 35px;
      border-radius: 7px;
      cursor: pointer;
+     text-decoration: none;
  }
 
  /* today section */
@@ -428,6 +429,10 @@
      .week {
          width: 100%;
      }
+
+     .Progressbar {
+         display: flex;
+     }
  }
 
  @media screen and (max-width:700px) {
@@ -450,4 +455,9 @@
          display: block;
          line-height: 2;
      }
+
+     .Progressbar {
+         display: block;
+     }
+
  }
