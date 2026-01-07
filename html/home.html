@@ -6,6 +6,7 @@
     <title>ToDo List</title>
 
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/form.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -32,10 +33,10 @@
           <a href="#" style="background: #e7f2fd; color: #1081ec">
             <i class="fa-solid fa-gauge"></i>Dashboard
           </a>
-          <a href="#"><i class="fa-solid fa-inbox"></i>Inbox</a>
-          <a href="#"><i class="fa-regular fa-calendar"></i>Today</a>
+
+          <a href="#"><i class="fa-regular fa-calendar"></i>Completed</a>
           <a href="#"
-            ><i class="fa-solid fa-arrow-right-to-bracket"></i>Upcoming</a
+            ><i class="fa-solid fa-arrow-right-to-bracket"></i>Pending</a
           >
         </nav>
 
@@ -50,8 +51,8 @@
           </div>
         </div>
 
-        <button class="newbtn">
-          <i class="fa-solid fa-plus"></i> New List
+        <button href="/html/form.html" class="newbtn">
+          <i class="fa-solid fa-plus"></i> Create Task
         </button>
       </aside>
 
@@ -69,6 +70,7 @@
           <div class="search">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input
+              class="search-box"
               type="text"
               placeholder="Search tasks, tags, or projects..."
             />
@@ -102,13 +104,13 @@
                 </p>
                 <div class="pb">
                   <div class="Progress"><div></div></div>
-                  <p style="color: black">65%</p>
+                  <p style="color: black">0%</p>
                 </div>
               </div>
 
-              <a href="/html/form.html" class="taskbtn">
+              <button href="/html/form.html" class="taskbtn">
                 <i class="fa-solid fa-plus"></i> Add Task
-              </a>
+              </button>
             </div>
           </section>
 
@@ -119,7 +121,7 @@
                 <i class="fa-solid fa-sun" style="color: #f97316"></i>
                 <h2>Today's Focus</h2>
               </div>
-              <div class="date">
+              <div class="date-box">
                 <p id="date" style="color: #96a3b9"></p>
               </div>
             </div>
@@ -141,13 +143,130 @@
               </div>
 
               <div class="week">
-                <h4 class="h4">THIS WEEK</h4>
+                <h4 class="h4">UPCOMING</h4>
                 <div id="weekTasks"></div>
               </div>
             </div>
           </section>
         </div>
       </main>
+    </div>
+
+    <!-- Modal -->
+
+    <div class="modal">
+      <div class="modalbox">
+        <div class="content">
+          <div class="taskbox">
+            <!-- TITLE -->
+            <div class="title">
+              <div class="newtask">
+                <h1 id="modal-title">Create New Task</h1>
+                <p id="modal-subtitle">
+                  Fill in the details below to add a new item to your list.
+                </p>
+              </div>
+
+              <button class="close-modal">&times;</button>
+            </div>
+
+            <!-- FORM START -->
+            <form class="form" action="" id="task-form">
+              <!-- Task Title -->
+              <div class="task">
+                <label class="label" for="task-input">Task Title</label><br />
+                <input
+                  class="ip"
+                  id="task-input"
+                  type="text"
+                  placeholder="e.g., Q3 Report Analysis"
+                  required
+                />
+              </div>
+
+              <!-- Description -->
+              <div class="description">
+                <label class="label" for="textarea">
+                  Description
+                  <span style="color: #9aa9bd">(Optional)</span> </label
+                ><br />
+                <textarea
+                  id="textarea"
+                  rows="3"
+                  placeholder="Add details about this task..."
+                ></textarea>
+              </div>
+
+              <!-- Date & Time -->
+              <div class="datetime">
+                <div class="date">
+                  <label class="label" for="date-input">Due Date</label><br />
+                  <div class="icon1">
+                    <i class="fa-regular fa-calendar"></i>
+                    <input class="ip" id="date-input" type="date" required />
+                  </div>
+                </div>
+
+                <div class="time-ip">
+                  <label class="label" for="time-input">Time</label><br />
+                  <div class="icon1">
+                    <i class="fa-regular fa-clock"></i>
+                    <input class="ip" id="time-input" type="time" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Project & Priority -->
+              <div class="ppbox">
+                <!-- Project -->
+                <div class="projects">
+                  <label class="label" for="projects-select">Project</label
+                  ><br />
+                  <select id="projects-select" required>
+                    <option value="">Select Project</option>
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Wishlist">Wishlist</option>
+                  </select>
+                </div>
+
+                <!-- Priority -->
+                <div class="priority">
+                  <label class="label">Priority</label><br />
+                  <div>
+                    <button type="button" class="low" data-priority="Low">
+                      <span class="lowdot"></span>Low
+                    </button>
+                    <button type="button" class="medium" data-priority="Medium">
+                      <span class="mediumdot"></span>Medium
+                    </button>
+                    <button type="button" class="high" data-priority="High">
+                      <span class="highdot"></span>High
+                    </button>
+                  </div>
+                  <input type="hidden" id="priority-input" value="Medium" />
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="btngrp">
+                <button type="button" class="cancelbtn">Cancel</button>
+                <button type="submit" class="createbtn" id="submit-btn">
+                  <i class="fa-solid fa-check"></i>Create Task
+                </button>
+              </div>
+            </form>
+            <!-- FORM END -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+      <i class="fa-solid fa-check-circle"></i>
+      <span id="toast-msg">Task created successfully!</span>
     </div>
 
     <script src="/JS/script.js"></script>
