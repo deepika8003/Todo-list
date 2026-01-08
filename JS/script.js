@@ -1,7 +1,6 @@
-//modal
-
 let editIndex = null;
 let selectedPriority = "";
+let activeFilter = "all";
 
 // Modal elements
 const modal = document.querySelector('.modal');
@@ -16,6 +15,17 @@ const toastMsg = document.getElementById('toast-msg');
 // Open modal for creating new task
 function openCreateModal() {
   editIndex = null;
+  // Reset form and set default priority
+  form.reset();
+  selectedPriority = "Medium";
+  priorityInput.value = selectedPriority;
+  setActivePriorityButton(selectedPriority);
+
+  // Reset modal title and button
+  document.getElementById('modal-title').textContent = "Create New Task";
+  document.getElementById('modal-subtitle').textContent = "Fill in the details below to add a new item to your list.";
+  document.getElementById('submit-btn').innerHTML = '<i class="fa-solid fa-check"></i>Create Task';
+
   // Show modal
   modal.style.display = "flex";
 }
@@ -36,8 +46,9 @@ function openEditModal(index) {
     document.getElementById('projects-select').value = task.project;
 
     // Set priority
-    selectedPriority = task.priority;
+    selectedPriority = task.priority || "Medium";
     priorityInput.value = selectedPriority;
+    setActivePriorityButton(selectedPriority);
 
     // Update modal title and button
     document.getElementById('modal-title').textContent = "Edit Task";
@@ -87,7 +98,7 @@ function showToast(message, type = "success") {
   }, 2000);
 }
 
-//  EVENT LISTENERS 
+// EVENT LISTENERS 
 
 // Open modal when Add Task button is clicked
 document.querySelector('.taskbtn').addEventListener('click', openCreateModal);
@@ -99,7 +110,12 @@ closeModalBtn.addEventListener('click', closeModal);
 // Close modal when Cancel button is clicked
 cancelBtn.addEventListener('click', closeModal);
 
-
+// Close modal when clicking outside
+modal.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal')) {
+    closeModal();
+  }
+});
 
 // Priority button selection
 priorityButtons.forEach(btn => {
@@ -113,6 +129,7 @@ priorityButtons.forEach(btn => {
 // Form submission
 form.addEventListener('submit', (e) => {
   e.preventDefault();
+  let tasks = getAllTasks();
 
   // Get form values
   const taskData = {
@@ -121,10 +138,10 @@ form.addEventListener('submit', (e) => {
     dueDate: document.getElementById('date-input').value,
     time: document.getElementById('time-input').value,
     project: document.getElementById('projects-select').value,
-    priority: selectedPriority
+    priority: selectedPriority,
+    completed: editIndex !== null ? tasks[editIndex].completed : false,
+    status: editIndex !== null ? tasks[editIndex].status : "pending"
   };
-
-  let tasks = getAllTasks();
 
   if (editIndex !== null) {
     // Update existing task
@@ -138,9 +155,8 @@ form.addEventListener('submit', (e) => {
     showToast('Task created successfully!');
   }
 
-  // Close modal 
+  renderAll();
   closeModal();
-
 });
 
 // Update editTask function to use the modal
@@ -148,25 +164,32 @@ window.editTask = function (index) {
   openEditModal(index);
 };
 
-
-// get current date
+// Get current date
 const d = new Date();
 document.getElementById("date").innerText = d.toDateString();
 
-// sidebar toggle
+// Sidebar toggle
 const menuIcon = document.getElementById("sidebar");
 const aside = document.querySelector(".aside");
 const closeIcon = document.querySelector(".close-icon");
 
+
 menuIcon.addEventListener("click", () => {
-  aside.style.display = "block";
+  aside.classList.add("open");
 });
 
 closeIcon.addEventListener("click", () => {
-  aside.style.display = "none";
+  aside.classList.remove("open");
 });
 
-// project color selection
+
+// search page
+const homeSearch = document.getElementById("search");
+
+homeSearch.addEventListener("focus", () => {
+  window.location.href = "/html/search.html";
+});
+// Project color selection
 const projectColors = {
   work: { color: "#00663e", bg: "#d1fae5" },
   personal: { color: "#7700cd", bg: "#f3e8ff" },
@@ -174,24 +197,24 @@ const projectColors = {
   wishlist: { color: "#ec4899", bg: "#fce7f3" }
 };
 
-// today date string
+// Today date string
 function todayStr() {
   return new Date().toISOString().split("T")[0];
 }
 
-// tomorrow date string
+// Tomorrow date string
 function tomorrowStr() {
   const d = new Date();
   d.setDate(d.getDate() + 1);
   return d.toISOString().split("T")[0];
 }
 
-// get all tasks from localStorage
+// Get all tasks from localStorage
 function getAllTasks() {
   return JSON.parse(localStorage.getItem("tasks")) || [];
 }
 
-// separate tasks based on date
+// Separate tasks based on date and filter
 function classifyTasks() {
   const today = todayStr();
   const tomorrow = tomorrowStr();
@@ -203,26 +226,27 @@ function classifyTasks() {
   const allTasks = getAllTasks();
 
   allTasks.forEach((task, index) => {
-    const category = task.project.toLowerCase();
+    const category = task.project ? task.project.toLowerCase() : 'work';
 
+    // Apply filter only to today's tasks
     if (task.dueDate === today) {
-      todayTasks.push({ ...task, category, storageIndex: index });
-    }
-    else if (task.dueDate === tomorrow) {
+      if (activeFilter === "all" || task.status === activeFilter) {
+        todayTasks.push({ ...task, category, storageIndex: index });
+      }
+    } else if (task.dueDate === tomorrow) {
       tomorrowTasks.push({ ...task, category, storageIndex: index });
-    }
-    else if (task.dueDate > tomorrow) {
+    } else if (task.dueDate > tomorrow) {
       upcomingTasks.push({ ...task, category, storageIndex: index });
     }
   });
 
-  // sort today tasks by time
+  // Sort today tasks by time
   todayTasks.sort((a, b) => (a.time || "").localeCompare(b.time || ""));
 
   return { todayTasks, tomorrowTasks, upcomingTasks };
 }
 
-// update progress bar
+// Update progress bar
 function updateProgress() {
   const todaybox = document.getElementById("todayTasks");
   const checkbox = todaybox.querySelectorAll("input[type='checkbox']");
@@ -242,7 +266,7 @@ function updateProgress() {
   setProgress(percentage);
 }
 
-// set progress bar width
+// Set progress bar width
 function setProgress(percentage) {
   const bar = document.querySelector(".Progress div");
   const text = document.querySelector(".pb p");
@@ -251,42 +275,89 @@ function setProgress(percentage) {
   text.innerText = percentage + "%";
 }
 
-// checkbox change event
-document.getElementById("todayTasks").addEventListener("change", function (e) {
-  if (e.target.type === "checkbox") {
+// Toggle completion and status
+function toggleComplete(index, isChecked) {
+  let tasks = getAllTasks();
+  tasks[index].completed = isChecked;
+  tasks[index].status = isChecked ? "completed" : "pending";
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+
+  // Re-render if we're in a filtered view
+  if (activeFilter !== "all") {
+    renderAll();
+  } else {
     updateProgress();
   }
-});
+}
 
-// update dropdown toggle
+// Update status from dropdown
+function updateStatus(index, status) {
+  let tasks = getAllTasks();
+
+  tasks[index].status = status;
+  tasks[index].completed = status === "completed";
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  renderAll();
+}
+
+
+// Close dropdowns when clicking elsewhere
 document.addEventListener("click", function (e) {
-  const update = e.target.closest(".update");
-
-  // close all dropdowns
-  document.querySelectorAll(".dropdown").forEach(d => {
-    d.style.display = "none";
-  });
-
-  if (update) {
-    const dropdown = update.querySelector(".dropdown");
-    dropdown.style.display = "block";
-    e.stopPropagation();
+  if (!e.target.closest(".update")) {
+    document.querySelectorAll(".dropdown").forEach(d => {
+      d.style.display = "none";
+    });
   }
 });
 
-// render today tasks
+// side bar 
+document.querySelectorAll(".nav a[data-filter]").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+
+    // active style reset
+    document.querySelectorAll(".nav a").forEach(a => {
+      a.style.background = "";
+      a.style.color = "";
+    });
+
+    // active style set
+    link.style.background = "#e7f2fd";
+    link.style.color = "#1081ec";
+
+    // set filter
+    activeFilter = link.dataset.filter;
+    renderAll();
+    aside.classList.remove("open");
+
+  });
+});
+
+
+// Render today tasks
 function renderToday() {
   const box = document.getElementById("todayTasks");
   box.innerHTML = "";
 
   const { todayTasks } = classifyTasks();
 
+  if (todayTasks.length === 0) {
+    box.innerHTML = `
+      <div class="list" style="justify-content: center; color: #96a3b9;">
+        No tasks found
+      </div>
+    `;
+    return;
+  }
+
   todayTasks.forEach(task => {
-    const c = projectColors[task.category];
+    const c = projectColors[task.category] || projectColors.work;
     box.innerHTML += `
       <div class="list">
         <div class="listcontent">
-          <input type="checkbox">
+          <input type="checkbox" ${task.completed ? "checked" : ""} 
+                 onchange="toggleComplete(${task.storageIndex}, this.checked)">
           <div>
             <p>${task.title}</p>
             <div class="span">
@@ -305,12 +376,18 @@ function renderToday() {
             <i class="fa-solid fa-pen-to-square"></i>
           </div>
 
-          <div class="update">
+          <div class="update" onclick="toggleDropdown(this)">
             <i class="fa-solid fa-caret-down"></i>
             <ul class="dropdown">
-              <li>Completed</li>
-              <li>Inprogress</li>
-              <li>Pending</li>
+              <li onclick="updateStatus(${task.storageIndex}, 'completed')">
+                <i class="fa-solid fa-check"></i> Completed
+              </li>
+              <li onclick="updateStatus(${task.storageIndex}, 'inprogress')">
+                <i class="fa-solid fa-spinner"></i> Inprogress
+              </li>
+              <li onclick="updateStatus(${task.storageIndex}, 'pending')">
+                <i class="fa-solid fa-clock"></i> Pending
+              </li>
             </ul>
           </div>
 
@@ -325,7 +402,21 @@ function renderToday() {
   updateProgress();
 }
 
-// render tomorrow tasks
+// Toggle dropdown visibility
+function toggleDropdown(element) {
+  const dropdown = element.querySelector('.dropdown');
+  const isVisible = dropdown.style.display === 'block';
+
+  // Close all dropdowns first
+  document.querySelectorAll('.dropdown').forEach(d => {
+    d.style.display = 'none';
+  });
+
+  // Toggle current dropdown
+  dropdown.style.display = isVisible ? 'none' : 'block';
+}
+
+// Render tomorrow tasks
 function renderTomorrow() {
   const box = document.getElementById("tomorrowTasks");
   box.innerHTML = "";
@@ -333,11 +424,11 @@ function renderTomorrow() {
   const { tomorrowTasks } = classifyTasks();
 
   tomorrowTasks.forEach(task => {
-    const c = projectColors[task.category];
+    const c = projectColors[task.category] || projectColors.work;
 
     box.innerHTML += `
-      <div class ="tmrw">
-       <div class = "upcontent">
+      <div class="tmrw">
+       <div class="upcontent">
         <div class="upicon" style="background:${c.bg};color:${c.color}">
           <i class="fa-solid fa-calendar"></i>
         </div>
@@ -348,14 +439,14 @@ function renderTomorrow() {
        </div>
               
         <div class="delete" onclick="deleteTask(${task.storageIndex})">
-            <i class="fa-solid fa-trash"></i>
-          </div>
+          <i class="fa-solid fa-trash"></i>
+        </div>
       </div>
     `;
   });
 }
 
-// render upcoming / total tasks
+// Render upcoming / total tasks
 function renderUpcoming() {
   const box = document.getElementById("weekTasks");
   box.innerHTML = "";
@@ -363,36 +454,37 @@ function renderUpcoming() {
   const { upcomingTasks } = classifyTasks();
 
   upcomingTasks.forEach(task => {
-    const c = projectColors[task.category];
+    const c = projectColors[task.category] || projectColors.work;
 
     box.innerHTML += `
-      <div class = "upcome">
-      <div class="upcontent">
-        <div class="upicon" style="background:${c.bg};color:${c.color}">
-          <i class="fa-solid fa-calendar-days"></i>
-        </div>
-        <div class="upnote">
-          <h4>${task.title}</h4>
-          <p>${task.dueDate} • ${task.project}</p>
-        </div>
-      </div>
-       <div class="delete" onclick="deleteTask(${task.storageIndex})">
-            <i class="fa-solid fa-trash"></i>
+      <div class="upcome">
+        <div class="upcontent">
+          <div class="upicon" style="background:${c.bg};color:${c.color}">
+            <i class="fa-solid fa-calendar-days"></i>
           </div>
+          <div class="upnote">
+            <h4>${task.title}</h4>
+            <p>${task.dueDate} • ${task.project}</p>
+          </div>
+        </div>
+        <div class="delete" onclick="deleteTask(${task.storageIndex})">
+          <i class="fa-solid fa-trash"></i>
+        </div>
       </div>
     `;
   });
 }
 
-// delete task
+// Delete task
 function deleteTask(index) {
   let tasks = getAllTasks();
   tasks.splice(index, 1);
   localStorage.setItem("tasks", JSON.stringify(tasks));
   renderAll();
+  showToast('Task deleted successfully!', 'success');
 }
 
-// render all sections
+// Render all sections
 function renderAll() {
   renderToday();
   renderTomorrow();

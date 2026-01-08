@@ -387,6 +387,7 @@ main {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
     display: none;
     z-index: 900;
+    color: black;
 }
 
 .dropdown li {
@@ -394,11 +395,13 @@ main {
     cursor: pointer;
     font-size: 14px;
     margin: 0px 7px;
+    display: flex;
+    gap: 10px;
 }
 
 .dropdown li:hover {
     background-color: #f3f4f6;
-    color: black;
+    color: blue;
 }
 
 /* upcoming */
@@ -472,6 +475,10 @@ main {
     color: #8f98a6;
 }
 
+.aside {
+    display: block;
+}
+
 
 /* tab view */
 
@@ -485,6 +492,10 @@ main {
         height: 100vh;
         z-index: 9999;
 
+    }
+
+    .aside.open {
+        display: block;
     }
 
     .main {
@@ -576,4 +587,3 @@ main {
         margin-top: 10px;
     }
 }
-

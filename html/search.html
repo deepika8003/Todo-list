@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Search Tasks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <link rel="stylesheet" href="/css/search.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="page">
+      <!-- SIDEBAR -->
+      <aside class="aside">
+        <div class="profile">
+          <img src="/img/profile.jpg" alt="profile picture" />
+          <div>
+            <h3>Alex Morgan</h3>
+            <span style="color: #a1a2a4">Free plan</span>
+          </div>
+          <div>
+            <i class="fa-solid fa-xmark close-icon" id="close"></i>
+          </div>
+        </div>
+
+        <!-- NAV -->
+        <nav class="nav">
+          <a
+            href="/html/home.html"
+            data-filter="all"
+            style="background: #e7f2fd; color: #1081ec"
+          >
+            <i class="fa-solid fa-gauge"></i>Dashboard
+          </a>
+
+          <a href="#" data-filter="completed">
+            <i class="fa-regular fa-calendar"></i>Completed
+          </a>
+
+          <a href="#" data-filter="inprogress">
+            <i class="fa-solid fa-spinner"></i>Inprogress
+          </a>
+
+          <a href="#" data-filter="pending">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>Pending
+          </a>
+        </nav>
+
+        <!-- PROJECTS -->
+        <div class="project">
+          <h4>My Projects</h4>
+          <div class="sub-project">
+            <p><span class="dot1"></span>Work</p>
+            <p><span class="dot2"></span>Personal</p>
+            <p><span class="dot3"></span>Shopping</p>
+            <p><span class="dot4"></span>Wishlist</p>
+          </div>
+        </div>
+
+        <button href="/html/form.html" class="newbtn">
+          <i class="fa-solid fa-plus"></i> Create Task
+        </button>
+      </aside>
+
+      <!-- MAIN -->
+      <main>
+        <!-- SEARCH BAR -->
+        <div class="searchbar">
+          <!-- HAMBURGER ICON -->
+          <i
+            id="sidebar"
+            class="fa-solid fa-bars menu-icon"
+            style="display: none"
+          ></i>
+
+          <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              id="searchInput"
+              class="search-box"
+              type="text"
+              placeholder="Search tasks, tags, or projects..."
+            />
+          </div>
+
+          <div class="icon">
+            <i class="fa-solid fa-bell"></i>
+            <i class="fa-solid fa-gear"></i>
+          </div>
+        </div>
+
+            <!-- FILTER DATA -->
+            <div class="listbox" id="todayTasks" style="margin: 20px;"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script src="/JS/search.js"></script>
+    <script src="/JS/script.js"></script>
+  </body>
+</html>
