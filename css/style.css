@@ -182,7 +182,7 @@ main {
 }
 
 .icon {
-    display: flex;
+    visibility: hidden;
     gap: 20px;
     font-size: larger;
     padding: 0px 10px;
@@ -336,6 +336,34 @@ main {
 .change {
     display: flex;
     gap: 20px;
+}
+
+.update-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+    min-width: 85px;
+    text-align: center;
+}
+
+.update-status.completed {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #10b981;
+}
+
+.update-status.inprogress {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+}
+
+.update-status.pending {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
 }
 
 .change div {
@@ -546,15 +574,17 @@ main {
 }
 
 @media screen and (max-width:700px) {
+    .searchbar {
+        gap: 15px;
+    }
 
     .search {
+        width: 100%;
+    }
+
+    .icon {
         display: none;
     }
-
-    .searchbar {
-        padding: 15px;
-    }
-
 
     .Progress {
         width: 100%;

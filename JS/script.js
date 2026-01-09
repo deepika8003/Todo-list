@@ -98,7 +98,7 @@ function showToast(message, type = "success") {
   }, 2000);
 }
 
-// EVENT LISTENERS 
+
 
 // Open modal when Add Task button is clicked
 document.querySelector('.taskbtn').addEventListener('click', openCreateModal);
@@ -113,6 +113,12 @@ cancelBtn.addEventListener('click', closeModal);
 // Close modal when clicking outside
 modal.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal')) {
+    closeModal();
+  }
+});
+modal.addEventListener("click", (e) => {
+
+  if (e.target === modal) {
     closeModal();
   }
 });
@@ -156,6 +162,7 @@ form.addEventListener('submit', (e) => {
   }
 
   renderAll();
+  pendingTaskCount();
   closeModal();
 });
 
@@ -173,7 +180,6 @@ const menuIcon = document.getElementById("sidebar");
 const aside = document.querySelector(".aside");
 const closeIcon = document.querySelector(".close-icon");
 
-
 menuIcon.addEventListener("click", () => {
   aside.classList.add("open");
 });
@@ -182,13 +188,13 @@ closeIcon.addEventListener("click", () => {
   aside.classList.remove("open");
 });
 
-
 // search page
 const homeSearch = document.getElementById("search");
 
 homeSearch.addEventListener("focus", () => {
   window.location.href = "/html/search.html";
 });
+
 // Project color selection
 const projectColors = {
   work: { color: "#00663e", bg: "#d1fae5" },
@@ -246,6 +252,19 @@ function classifyTasks() {
   return { todayTasks, tomorrowTasks, upcomingTasks };
 }
 
+// update pending task count
+function pendingTaskCount() {
+  const today = todayStr();
+  const tasks = getAllTasks();
+
+  const todayCount = tasks.filter(task => task.dueDate === today && (task.status === "pending" || task.status === "inprogress")).length;
+
+  const count = document.getElementById("taskCount");
+  if (count) {
+    count.innerText = todayCount;
+  }
+}
+
 // Update progress bar
 function updateProgress() {
   const todaybox = document.getElementById("todayTasks");
@@ -285,22 +304,60 @@ function toggleComplete(index, isChecked) {
   // Re-render if we're in a filtered view
   if (activeFilter !== "all") {
     renderAll();
+    pendingTaskCount();
   } else {
     updateProgress();
+    // Update the status display without full re-render
+    updateTaskStatusDisplay(index, tasks[index].status);
   }
 }
 
+// Update task status display in the UI
+function updateTaskStatusDisplay(index, status) {
+  // Find the task element in the DOM and update its status display
+  const taskElements = document.querySelectorAll('.list');
+  taskElements.forEach(taskEl => {
+    const checkbox = taskEl.querySelector('input[type="checkbox"]');
+    if (checkbox && checkbox.getAttribute('onchange').includes(`toggleComplete(${index},`)) {
+      const statusBox = taskEl.querySelector('.update-status');
+      if (statusBox) {
+        statusBox.textContent = status;
+        statusBox.className = 'update-status';
+        statusBox.classList.add(status.toLowerCase());
+      }
+    }
+  });
+}
+
 // Update status from dropdown
-function updateStatus(index, status) {
+function updateStatus(index, status, element) {
   let tasks = getAllTasks();
 
   tasks[index].status = status;
   tasks[index].completed = status === "completed";
 
   localStorage.setItem("tasks", JSON.stringify(tasks));
-  renderAll();
-}
 
+  // Find the update-status div and update it
+  const statusBox = element.closest(".change").querySelector(".update-status");
+  statusBox.innerText = status;
+  statusBox.className = "update-status";
+  statusBox.classList.add(status.toLowerCase());
+
+  // Find and update the checkbox state
+  const checkbox = element.closest(".list").querySelector('input[type="checkbox"]');
+  if (checkbox) {
+    checkbox.checked = status === "completed";
+  }
+
+  // Close dropdown
+  const dropdown = element.closest(".update").querySelector(".dropdown");
+  dropdown.style.display = "none";
+
+  // Update progress
+  updateProgress();
+  pendingTaskCount();
+}
 
 // Close dropdowns when clicking elsewhere
 document.addEventListener("click", function (e) {
@@ -330,10 +387,8 @@ document.querySelectorAll(".nav a[data-filter]").forEach(link => {
     activeFilter = link.dataset.filter;
     renderAll();
     aside.classList.remove("open");
-
   });
 });
-
 
 // Render today tasks
 function renderToday() {
@@ -353,6 +408,7 @@ function renderToday() {
 
   todayTasks.forEach(task => {
     const c = projectColors[task.category] || projectColors.work;
+
     box.innerHTML += `
       <div class="list">
         <div class="listcontent">
@@ -372,6 +428,7 @@ function renderToday() {
         </div>
 
         <div class="change">
+          <div class="update-status ${task.status}">${task.status}</div>
           <div class="edit" onclick="editTask(${task.storageIndex})">
             <i class="fa-solid fa-pen-to-square"></i>
           </div>
@@ -379,13 +436,13 @@ function renderToday() {
           <div class="update" onclick="toggleDropdown(this)">
             <i class="fa-solid fa-caret-down"></i>
             <ul class="dropdown">
-              <li onclick="updateStatus(${task.storageIndex}, 'completed')">
+              <li onclick="updateStatus(${task.storageIndex}, 'completed', this)">
                 <i class="fa-solid fa-check"></i> Completed
               </li>
-              <li onclick="updateStatus(${task.storageIndex}, 'inprogress')">
+              <li onclick="updateStatus(${task.storageIndex}, 'inprogress', this)">
                 <i class="fa-solid fa-spinner"></i> Inprogress
               </li>
-              <li onclick="updateStatus(${task.storageIndex}, 'pending')">
+              <li onclick="updateStatus(${task.storageIndex}, 'pending', this)">
                 <i class="fa-solid fa-clock"></i> Pending
               </li>
             </ul>
@@ -400,20 +457,19 @@ function renderToday() {
   });
 
   updateProgress();
+  pendingTaskCount();
 }
 
-// Toggle dropdown visibility
-function toggleDropdown(element) {
-  const dropdown = element.querySelector('.dropdown');
-  const isVisible = dropdown.style.display === 'block';
+// Toggle dropdown
+function toggleDropdown(el) {
+  const dropdown = el.querySelector(".dropdown");
 
-  // Close all dropdowns first
-  document.querySelectorAll('.dropdown').forEach(d => {
-    d.style.display = 'none';
+  // close other dropdowns
+  document.querySelectorAll(".dropdown").forEach(d => {
+    if (d !== dropdown) d.style.display = "none";
   });
 
-  // Toggle current dropdown
-  dropdown.style.display = isVisible ? 'none' : 'block';
+  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
 }
 
 // Render tomorrow tasks
@@ -482,6 +538,7 @@ function deleteTask(index) {
   localStorage.setItem("tasks", JSON.stringify(tasks));
   renderAll();
   showToast('Task deleted successfully!', 'success');
+  pendingTaskCount()
 }
 
 // Render all sections
@@ -493,3 +550,4 @@ function renderAll() {
 
 // Initialize
 renderAll();
+pendingTaskCount();
