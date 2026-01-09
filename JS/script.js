@@ -98,8 +98,6 @@ function showToast(message, type = "success") {
   }, 2000);
 }
 
-
-
 // Open modal when Add Task button is clicked
 document.querySelector('.taskbtn').addEventListener('click', openCreateModal);
 document.querySelector('.newbtn').addEventListener('click', openCreateModal);
