@@ -190,7 +190,7 @@ closeIcon.addEventListener("click", () => {
 const homeSearch = document.getElementById("search");
 
 homeSearch.addEventListener("focus", () => {
-  window.location.href = "/search.html";
+  window.location.href = "search.html";
 });
 
 // Project color selection
