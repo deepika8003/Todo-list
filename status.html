@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Status Tasks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- Your main CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="page">
+      <!-- SIDEBAR -->
+      <aside class="aside">
+        <div class="profile">
+          <img src="/profile.jpg" alt="profile picture" />
+          <div>
+            <h3>Alex Morgan</h3>
+            <span style="color: #a1a2a4">Free plan</span>
+          </div>
+          <div>
+            <i class="fa-solid fa-xmark close-icon" id="close"></i>
+          </div>
+        </div>
+
+        <!-- NAV -->
+        <nav class="nav">
+          <a href="index.html" style="background: #e7f2fd; color: #1081ec">
+            <i class="fa-solid fa-gauge"></i>Dashboard
+          </a>
+
+          <a href="status.html?status=completed">
+            <i class="fa-solid fa-check"></i>Completed
+          </a>
+
+          <a href="status.html?status=inprogress">
+            <i class="fa-solid fa-spinner"></i>Inprogress
+          </a>
+
+          <a href="status.html?status=pending">
+            <i class="fa-solid fa-clock"></i>Pending
+          </a>
+        </nav>
+
+        <!-- PROJECTS -->
+        <div class="project">
+          <h4>My Projects</h4>
+          <div class="sub-project">
+            <p><span class="dot1"></span>Work</p>
+            <p><span class="dot2"></span>Personal</p>
+            <p><span class="dot3"></span>Shopping</p>
+            <p><span class="dot4"></span>Wishlist</p>
+          </div>
+        </div>
+
+        <button class="newbtn">
+          <i class="fa-solid fa-plus"></i> Create Task
+        </button>
+      </aside>
+
+      <!-- MAIN -->
+      <main>
+        <!-- SEARCH BAR -->
+        <div class="searchbar">
+          <!-- HAMBURGER ICON -->
+          <i
+            id="sidebar"
+            class="fa-solid fa-bars menu-icon"
+            style="display: none"
+          ></i>
+
+          <div class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              id="search"
+              class="search-box"
+              type="text"
+              placeholder="Search tasks, tags, or projects..."
+            />
+          </div>
+
+          <div class="icon">
+            <i class="fa-solid fa-bell"></i>
+            <i class="fa-solid fa-gear"></i>
+          </div>
+        </div>
+        <!-- CONTENT -->
+        <div class="maincontent">
+          <!-- TITLE -->
+          <section class="today">
+            <div class="todayhead">
+              <div class="focus">
+                <h2 id="statusTitle">Tasks</h2>
+              </div>
+            </div>
+
+            <!-- TASK LIST -->
+            <div class="listbox" id="statusTasks"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- JS -->
+    <script>
+      // SIDEBAR TOGGLE
+      const menuIcon = document.getElementById("sidebar");
+      const aside = document.querySelector(".aside");
+      const closeIcon = document.getElementById("close");
+
+      if (menuIcon) {
+        menuIcon.addEventListener("click", () => {
+          aside.classList.add("open");
+        });
+      }
+
+      if (closeIcon) {
+        closeIcon.addEventListener("click", () => {
+          aside.classList.remove("open");
+        });
+      }
+
+      // GET STATUS FROM URL
+      const params = new URLSearchParams(window.location.search);
+      const currentStatus = params.get("status");
+
+      const title = document.getElementById("statusTitle");
+      const box = document.getElementById("statusTasks");
+
+      if (currentStatus === "pending") title.innerText = "Pending Tasks";
+      else if (currentStatus === "inprogress")
+        title.innerText = "Inprogress Tasks";
+      else if (currentStatus === "completed")
+        title.innerText = "Completed Tasks";
+      else title.innerText = "Tasks";
+
+      // GET TASKS
+      function getAllTasks() {
+        return JSON.parse(localStorage.getItem("tasks")) || [];
+      }
+
+      // RENDER TASKS
+      function renderStatusTasks() {
+        const today = new Date().toISOString().split("T")[0];
+
+        const tasks = getAllTasks().filter((task) => {
+          if (!currentStatus) return false;
+          return task.dueDate === today && task.status === currentStatus;
+        });
+
+        box.innerHTML = "";
+
+        if (tasks.length === 0) {
+          box.innerHTML = `
+          <div class="list" style="justify-content:center;color:#96a3b9;">
+            No tasks found
+          </div>`;
+          return;
+        }
+
+        tasks.forEach((task) => {
+          box.innerHTML += `
+          <div class="list">
+            <div class="listcontent">
+              <input type="checkbox" ${
+                task.completed ? "checked" : ""
+              } disabled />
+              <div>
+                <p>${task.title}</p>
+                <div class="span">
+                  ${
+                    task.time
+                      ? `<span class="time">
+                          <i class="fa-solid fa-clock"></i>${task.time}
+                        </span>`
+                      : ""
+                  }
+                  <span class="${(task.project || "work").toLowerCase()}">
+                    ${task.project || "Work"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="change">
+              <div class="update-status ${task.status}">
+                ${task.status}
+              </div>
+            </div>
+          </div>
+        `;
+        });
+      }
+
+      renderStatusTasks();
+    </script>
+  </body>
+</html>

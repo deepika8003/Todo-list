@@ -508,16 +508,33 @@ main {
 }
 
 
+/* 1024px */
+@media screen and (max-width:1024px) {
+
+    .up {
+        display: flex;
+        flex-direction: column;
+
+
+    }
+
+    .tomorrow,
+    .week {
+        width: 100%;
+    }
+
+}
+
 /* tab view */
 
-@media screen and (max-width:1020px) {
+@media screen and (max-width:1000px) {
     .aside {
         display: none;
         position: fixed;
         top: 0;
         left: 0;
         width: 50%;
-        height: 100vh;
+        height: 100vh !important;
         z-index: 9999;
 
     }
@@ -557,16 +574,6 @@ main {
         text-align: left;
     }
 
-    .up {
-        display: flex;
-        flex-direction: column;
-
-    }
-
-    .tomorrow,
-    .week {
-        width: 100%;
-    }
 
     .Progressbar {
         display: flex;
@@ -602,18 +609,24 @@ main {
 
 }
 
-@media screen and (max-width:400px) {
+@media screen and (max-width:600px) {
     .aside {
         width: 75%;
     }
 
-    .list {
+    .list,
+    .tmrw,
+    .upcome {
         display: block;
+        border-bottom: 1px solid rgb(239, 238, 238);
+        padding-bottom: 20px;
 
     }
 
     .change {
-        gap: 0px;
+        gap: 10px;
         margin-top: 10px;
     }
+
+
 }

@@ -1,4 +1,7 @@
-
+// TODAY DATE
+function todayStr() {
+  return new Date().toISOString().split("T")[0];
+}
 // ELEMENTS
 
 const searchInput = document.getElementById("searchInput");
@@ -35,7 +38,8 @@ function getTasks() {
 // RENDER SEARCH RESULT
 
 function renderSearch(text) {
-  const tasks = getTasks();
+  const today = todayStr();
+  const tasks = getTasks().filter(task => task.dueDate === today);
   box.innerHTML = "";
 
   // empty input
@@ -123,14 +127,7 @@ function renderSearch(text) {
   });
 }
 
-// DELETE TASK
 
-function deleteTask(index) {
-  let tasks = getTasks();
-  tasks.splice(index, 1);
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  renderSearch(searchInput.value.trim());
-}
 
 // DROPDOWN TOGGLE
 function toggleDropdown(el) {
@@ -145,15 +142,7 @@ function toggleDropdown(el) {
 }
 
 
-// STATUS UPDATE
 
-function updateStatus(index, status) {
-  const tasks = getTasks();
-  tasks[index].status = status;
-  tasks[index].completed = status === "completed";
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  renderSearch(searchInput.value.trim());
-}
 
 // LIVE SEARCH
 

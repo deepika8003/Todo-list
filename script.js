@@ -366,28 +366,6 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// side bar 
-document.querySelectorAll(".nav a[data-filter]").forEach(link => {
-  link.addEventListener("click", e => {
-    e.preventDefault();
-
-    // active style reset
-    document.querySelectorAll(".nav a").forEach(a => {
-      a.style.background = "";
-      a.style.color = "";
-    });
-
-    // active style set
-    link.style.background = "#e7f2fd";
-    link.style.color = "#1081ec";
-
-    // set filter
-    activeFilter = link.dataset.filter;
-    renderAll();
-    aside.classList.remove("open");
-  });
-});
-
 // Render today tasks
 function renderToday() {
   const box = document.getElementById("todayTasks");
@@ -492,8 +470,30 @@ function renderTomorrow() {
         </div>
        </div>
               
-        <div class="delete" onclick="deleteTask(${task.storageIndex})">
-          <i class="fa-solid fa-trash"></i>
+         <div class="change">
+          <div class="update-status ${task.status}">${task.status}</div>
+          <div class="edit" onclick="editTask(${task.storageIndex})">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+
+          <div class="update" onclick="toggleDropdown(this)">
+            <i class="fa-solid fa-caret-down"></i>
+            <ul class="dropdown">
+              <li onclick="updateStatus(${task.storageIndex}, 'completed', this)">
+                <i class="fa-solid fa-check"></i> Completed
+              </li>
+              <li onclick="updateStatus(${task.storageIndex}, 'inprogress', this)">
+                <i class="fa-solid fa-spinner"></i> Inprogress
+              </li>
+              <li onclick="updateStatus(${task.storageIndex}, 'pending', this)">
+                <i class="fa-solid fa-clock"></i> Pending
+              </li>
+            </ul>
+          </div>
+
+          <div class="delete" onclick="deleteTask(${task.storageIndex})">
+            <i class="fa-solid fa-trash"></i>
+          </div>
         </div>
       </div>
     `;
@@ -521,8 +521,31 @@ function renderUpcoming() {
             <p>${task.dueDate} • ${task.project}</p>
           </div>
         </div>
-        <div class="delete" onclick="deleteTask(${task.storageIndex})">
-          <i class="fa-solid fa-trash"></i>
+       
+         <div class="change">
+          <div class="update-status ${task.status}">${task.status}</div>
+          <div class="edit" onclick="editTask(${task.storageIndex})">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+
+          <div class="update" onclick="toggleDropdown(this)">
+            <i class="fa-solid fa-caret-down"></i>
+            <ul class="dropdown">
+              <li onclick="updateStatus(${task.storageIndex}, 'completed', this)">
+                <i class="fa-solid fa-check"></i> Completed
+              </li>
+              <li onclick="updateStatus(${task.storageIndex}, 'inprogress', this)">
+                <i class="fa-solid fa-spinner"></i> Inprogress
+              </li>
+              <li onclick="updateStatus(${task.storageIndex}, 'pending', this)">
+                <i class="fa-solid fa-clock"></i> Pending
+              </li>
+            </ul>
+          </div>
+
+          <div class="delete" onclick="deleteTask(${task.storageIndex})">
+            <i class="fa-solid fa-trash"></i>
+          </div>
         </div>
       </div>
     `;
