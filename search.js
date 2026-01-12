@@ -12,7 +12,6 @@ const menuIcon = document.getElementById("sidebar");
 const aside = document.querySelector(".aside");
 const closeIcon = document.querySelector(".close-icon");
 
-
 menuIcon.addEventListener("click", () => {
   aside.classList.add("open");
 });
@@ -39,7 +38,7 @@ function getTasks() {
 
 function renderSearch(text) {
   const today = todayStr();
-  const tasks = getTasks().filter(task => task.dueDate === today);
+  const tasks = getTasks();
   box.innerHTML = "";
 
   // empty input
@@ -56,10 +55,18 @@ function renderSearch(text) {
   // keep original index
   const results = tasks
     .map((task, index) => ({ ...task, storageIndex: index }))
-    .filter(task =>
-      task.title.toLowerCase().includes(q) ||
-      (task.project || "").toLowerCase().includes(q)
-    );
+    .filter(task => {
+      // Filter out past tasks
+      if (task.dueDate < today) return false;
+
+      // Check search criteria
+      return (
+        task.title.toLowerCase().includes(q) ||
+        (task.description || "").toLowerCase().includes(q) ||
+        (task.project || "").toLowerCase().includes(q) ||
+        (task.priority || "").toLowerCase().includes(q)
+      );
+    });
 
   // no result
   if (results.length === 0) {
@@ -69,6 +76,9 @@ function renderSearch(text) {
       </div>`;
     return;
   }
+
+  // sort by date
+  results.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
   // render result
   results.forEach(task => {
@@ -90,7 +100,7 @@ function renderSearch(text) {
                     </span>`
         : ""
       }
-
+             
               <span class="${key}"
                 style="background:${color.bg};color:${color.color}">
                 ${task.project || "Work"}
@@ -127,8 +137,6 @@ function renderSearch(text) {
   });
 }
 
-
-
 // DROPDOWN TOGGLE
 function toggleDropdown(el) {
   const dropdown = el.querySelector(".dropdown");
@@ -141,15 +149,15 @@ function toggleDropdown(el) {
     dropdown.style.display === "block" ? "none" : "block";
 }
 
-
-
-
 // LIVE SEARCH
-
 searchInput.addEventListener("input", e => {
   renderSearch(e.target.value.trim());
 });
 
-
 // AUTO FOCUS
 searchInput.focus();
+
+
+
+
+
