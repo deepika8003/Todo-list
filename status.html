@@ -141,6 +141,11 @@
         title.innerText = "Completed Tasks";
       else title.innerText = "Tasks";
 
+      // GET TODAY'S DATE
+      function getTodayStr() {
+        return new Date().toISOString().split("T")[0];
+      }
+
       // GET TASKS
       function getAllTasks() {
         return JSON.parse(localStorage.getItem("tasks")) || [];
@@ -148,12 +153,14 @@
 
       // RENDER TASKS
       function renderStatusTasks() {
-        const today = new Date().toISOString().split("T")[0];
-
+        const today = getTodayStr();
         const tasks = getAllTasks().filter((task) => {
           if (!currentStatus) return false;
-          return task.dueDate === today && task.status === currentStatus;
+
+          return task.status === currentStatus && task.dueDate >= today;
         });
+
+        tasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
         box.innerHTML = "";
 
@@ -182,6 +189,7 @@
                         </span>`
                       : ""
                   }
+                 
                   <span class="${(task.project || "work").toLowerCase()}">
                     ${task.project || "Work"}
                   </span>
